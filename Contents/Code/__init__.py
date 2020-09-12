@@ -1,6 +1,6 @@
 #Plex Theme Music
 import unicodedata
-import re, time, unicodedata, hashlib, types
+import re, time, unicodedata, hashlib, types , random
 THEME_URL = 'https://tvthemes.plexapp.com/%s.mp3'
 try:
   server_url = Prefs['server_url']
@@ -12,7 +12,7 @@ except:
 
 
 def Start():
-  HTTP.CacheTime = CACHE_1DAY
+  HTTP.CacheTime = None
   HTTP.Headers[
     'User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'
   HTTP.Headers['Accept-Language'] = 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
@@ -33,8 +33,8 @@ def safe_unicode(s, encoding='utf-8'):
 
 
 
-class DaumThemeMusic(Agent.TV_Shows):
-  name = 'Daum Theme Music'
+class DaumTheme(Agent.TV_Shows):
+  name = 'Daum Theme'
   languages = [Locale.Language.NoLanguage]
   primary_provider = False
   accepts_from = ['com.plexapp.agents.localmedia', 'com.plexapp.agents.sj_daum']
@@ -58,7 +58,7 @@ class DaumThemeMusic(Agent.TV_Shows):
       Log(str(item))
       Log(item.encode('utf-8'))
     try:
-      tmp = JSON.ObjectFromURL(server_url + '/theme', values=dict(keyword=media.title , id=metadata.id , apikey = Prefs['apikey'] , genre=str(self.genres[0]) if len(self.genres) > 0 else ""))['result']
+      tmp = JSON.ObjectFromURL(server_url + '/theme', values=dict(keyword=media.title , id=metadata.id , cacheTime=0 ,apikey = Prefs['apikey'] , genre=str(self.genres[0]) if len(self.genres) > 0 else ""))['result']
     except:
       tmp = None
       pass
@@ -71,6 +71,6 @@ class DaumThemeMusic(Agent.TV_Shows):
       for index in prefer_time:
         if tmp[index].count('http') == 0 : continue
         url = tmp[index]
-        metadata.themes[THEME_URL % '00000000000000000'+metadata.id] = Proxy.Media(HTTP.Request(str(url)))
+        metadata.themes[THEME_URL % str(random.randint(10000000,99999999))+metadata.id] = Proxy.Media(HTTP.Request(str(url)))
         Log('Get theme music... %s' % str(url))
         break
